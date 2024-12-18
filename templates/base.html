@@ -3,12 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %} {% endblock title %}</title>
-    {% block style %}  {% endblock style %}
+    <title>{% block title %}{% endblock title %}</title>
+
+    {% block style %}{% endblock style %}
+    <link rel='stylesheet' href='https://unpkg.com/boxicons@2.1.1/css/boxicons.min.css'>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/navbar.css') }}">
+    <script src="https://cdn.tailwindcss.com"></script>
+
 </head>
 <body>
-    {% block content %}  {% endblock content %}
 
-    {% block script %}  {% endblock script %}
+    {% include 'navbar.html' %}
+
+    <section class="home">
+        {% block content %} {% endblock content %}
+    </section>
+
+    <script src="{{ url_for('static', filename='js/navbar.js') }}"></script>
+    {% block script %}{% endblock script %}
 </body>
 </html>
