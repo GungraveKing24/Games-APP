@@ -36,6 +36,10 @@ def index():
     juegos = games.query.all()
     return render_template('index.html', juegos=juegos)
 
+@app.route('/edit')
+def edit():
+    return render_template('edit.html')
+
 @app.route('/editar/<int:juego_id>', methods=['GET', 'POST'])
 def editar(juego_id):
     juego = games.query.get_or_404(juego_id)

@@ -27,8 +27,10 @@ modeSwitch.addEventListener("click", () => {
     if (body.classList.contains("dark")) {
         modeText.innerText = "Light mode";
         localStorage.setItem("mode", "dark");
+        localStorage.setItem("darkmode", "True");
     } else {
         modeText.innerText = "Dark mode";
         localStorage.setItem("mode", "light");
+        localStorage.setItem("darkmode", "False");
     }
 });
