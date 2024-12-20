@@ -13,45 +13,32 @@
     </header>
     <div class="menu-bar">
         <div class="menu">
-        <li class="search-box">
-            <i class='bx bx-search icon'></i>
-            <input type="text" placeholder="Search...">
-        </li>
+        <form id="searchForm" onsubmit="return buscador(event);">
+            <li class="search-box">
+                <i class='bx bx-search icon'></i>
+                <input type="text" id="searchtext" name="q" placeholder="Search..." required>
+                <button type="submit" style="display: none;">Search</button>
+            </li>
+        </form>
+            
         <ul class="menu-links">
             <li class="nav-link">
-            <a href="#">
+            <a href="{{ url_for ('index') }}">
                 <i class='bx bx-home-alt icon'></i>
-                <span class="text nav-text">Dashboard</span>
+                <span class="text nav-text">Inicio</span>
             </a>
             </li>
             <li class="nav-link">
             <a href="#">
-                <i class='bx bx-bar-chart-alt-2 icon'></i>
-                <span class="text nav-text">Revenue</span>
+                <i class='bx bx-plus icon'></i>
+                <span class="text nav-text">Añadir Juego</span>
             </a>
             </li>
             <li class="nav-link">
-            <a href="#">
-                <i class='bx bx-bell icon'></i>
-                <span class="text nav-text">Notifications</span>
-            </a>
-            </li>
-            <li class="nav-link">
-            <a href="#">
-                <i class='bx bx-pie-chart-alt icon'></i>
-                <span class="text nav-text">Analytics</span>
-            </a>
-            </li>
-            <li class="nav-link">
-            <a href="#">
-                <i class='bx bx-heart icon'></i>
-                <span class="text nav-text">Likes</span>
-            </a>
-            </li>
-            <li class="nav-link">
-            <a href="#">
-                <i class='bx bx-wallet icon'></i>
-                <span class="text nav-text">Wallets</span>
+            <a href="/config">
+                <!-- Settings -->
+                <i class='bx bx-cog icon'></i>
+                <span class="text nav-text">Configuraciones </span>
             </a>
             </li>
         </ul>

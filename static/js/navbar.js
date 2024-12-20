@@ -6,6 +6,7 @@ const body = document.querySelector("body"),
     modeText = body.querySelector(".mode-text");
 
 const mode = localStorage.getItem("mode");
+const sidebarstatus = localStorage.getItem("sidebar");
 
 if (mode === "dark") {
     body.classList.add("dark");
@@ -13,8 +14,29 @@ if (mode === "dark") {
     body.classList.remove("dark");
 }
 
+if (sidebarstatus === "close") {
+    sidebar.classList.add("close");
+} else{
+    sidebar.classList.remove("close");
+}
+
+function buscador(event) {
+    event.preventDefault(); // Evita el comportamiento predeterminado de recargar la página
+    const text = document.getElementById("searchtext").value; // Obtiene el valor del input
+    if (text.trim()) { // Asegúrate de que no esté vacío
+        const url = `/search?q=${encodeURIComponent(text)}`; // Construye la URL
+        window.location.href = url; // Redirige al servidor
+    }
+    return false; // Evita el envío por defecto del formulario
+}
+
 toggle.addEventListener("click", () => {
     sidebar.classList.toggle("close");
+    if (sidebar.classList.contains("close")) {
+        localStorage.setItem("sidebar", "close");
+    } else {
+        localStorage.setItem("sidebar", "open");
+    }
 });
 
 searchBtn.addEventListener("click", () => {

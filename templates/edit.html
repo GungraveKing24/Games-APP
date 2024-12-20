@@ -6,82 +6,95 @@
 {% block content %}
 <div class="flex min-h-screen items-center justify-center bg-gradient-to-br from-indigo-100 to-purple-100 p-4 dark:from-gray-800 dark:to-gray-900">
     <div class="w-full max-w-2xl rounded-lg bg-white p-8 shadow-xl dark:bg-gray-800">
-        <div class="mb-6 flex items-center justify-between">
-        <h1 class="text-center text-3xl font-bold text-indigo-700 dark:text-indigo-400">Create a New Game</h1>
-        <button id="darkModeToggle" class="rounded-full bg-gray-200 p-2 text-gray-600 hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-            </svg>
-        </button>
-        </div>
+        <input type="text" id="idgame" name="idgame" value="{{ juego.id }}" hidden>
+
         <form id="gameForm" class="space-y-6">
-        <div class="flex space-x-6 rounded-lg bg-gray-50 p-2 dark:bg-gray-700">
-            <div class="w-[200px] flex-shrink-0">
-            <div id="imagePreview" class="flex h-[280px] w-[200px] items-center justify-center overflow-hidden rounded-lg bg-gray-200 text-gray-400 dark:bg-gray-600 dark:text-gray-300">No image selected</div>
-            <div class="mt-2 flex justify-center space-x-2">
-                <button type="button" id="uploadBtn" class="rounded bg-indigo-600 px-3 py-2 font-semibold text-white transition duration-300 ease-in-out hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600">Upload</button>
-                <button type="button" id="searchBtn" class="rounded bg-green-600 px-3 py-2 font-semibold text-white transition duration-300 ease-in-out hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600">Search</button>
-            </div>
-            </div>
+            <div class="flex space-x-6 rounded-lg bg-gray-50 p-2 dark:bg-gray-700">
+                <div class="w-[200px] flex-shrink-0">
+                    <div id="imagePreview" class="flex h-[280px] w-[200px] items-center justify-center overflow-hidden rounded-lg bg-gray-200 text-gray-400 dark:bg-gray-600 dark:text-gray-300">
+                        {% if juego.img %}
+                            <img src="{{ url_for('static', filename='images/' + juego.img) }}" alt="{{ juego.juego }}" class="h-full w-full object-cover">
+                        {% else %}
+                            <img src="" alt="{{ juego.juego }}" class="h-full w-full object-cover">
+                        {% endif %}
+                        <input type="hidden" name="img" id="hiddenImgField">
+                    </div>
+                    <div class="mt-2 flex justify-center space-x-2">
+                        <button type="button" id="uploadBtn" class="rounded bg-indigo-600 px-3 py-2 font-semibold text-white transition duration-300 ease-in-out hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600">Subir</button>
+                        <button type="button" id="searchBtn" class="rounded bg-green-600 px-3 py-2 font-semibold text-white transition duration-300 ease-in-out hover:bg-green-700 dark:bg-green-500 dark:hover:bg-green-600">Buscar</button>
+                    </div>
+                </div>
 
-            <!-- Game name -->
-            <div class="flex flex-grow flex-col space-y-4">
-            <div class="relative space-y-2">
-                <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Name</label>
-                <input type="text" id="name" name="name" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:focus:border-indigo-500 dark:focus:ring-indigo-500" />
-                <!-- Search suggestions -->
-                <ul id="buscadorresults" class="absolute left-0 right-0 z-10 mt-1 hidden max-h-40 overflow-auto rounded-md bg-white shadow-lg dark:bg-gray-700 dark:text-white">
-                <!-- Suggestions will be appended here dynamically -->
-                </ul>
-            </div>
+                <!-- Game name -->
+                <div class="flex flex-grow flex-col space-y-4">
+                    <div class="relative space-y-2">
+                        <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Nombre</label>
+                        <input type="text" id="name" value="{{ juego.juego }}" name="name" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:focus:border-indigo-500 dark:focus:ring-indigo-500" />
+                            <!-- Search suggestions -->
+                            <ul
+                            id="buscadorresults"
+                            class="absolute z-10 left-0 right-0 mt-1 max-h-40 overflow-auto rounded-md bg-white shadow-lg dark:bg-gray-700 dark:text-white hidden"
+                        ></ul>
+                    </div>
 
-            <div class="space-y-2">
-                <label for="state" class="block text-sm font-medium text-gray-700 dark:text-gray-300">State</label>
-                    <div class="flex items-center space-x-4">
-                    <!-- Flex container to align items horizontally -->
-                    <select id="state" name="state" required class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:focus:border-indigo-500 dark:focus:ring-indigo-500">
-                        <option value="">Select state</option>
-                        <option value="Completado">Completado</option>
-                        <option value="Jugando">Jugando</option>
-                        <option value="Nuevo">Nuevo</option>
-                        <option value="pending">Pendiente</option>
-                        <option value="Abandonado">Abandonado</option>
-                    </select>
+                    <div class="space-y-2">
+                        <label for="state" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Estado</label>
+                            <div class="flex items-center space-x-4">
+                            <!-- Flex container to align items horizontally -->
+                            <select id="state" name="state" required class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:focus:border-indigo-500 dark:focus:ring-indigo-500">
+                                <option value="">Seleccionar estado</option>
+                                <option value="Completado" {% if juego.estado == 'Completado' %}selected{% endif %} >Completado</option>
+                                <option value="Jugando" {% if juego.estado == 'Jugando' %}selected{% endif %}>Jugando</option>
+                                <option value="Nuevo" {% if juego.estado == 'Nuevo' %}selected{% endif %}>Nuevo</option>
+                                <option value="Pendiente" {% if juego.estado == 'Pendiente' %}selected{% endif %}>Pendiente</option>
+                                <option value="Abandonado" {% if juego.estado == 'Abandonado' %}selected{% endif %}>Abandonado</option>
+                            </select>
 
-                    <div class="flex items-center me-4">
-                        <label for="replaying" class="mr-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Rejugando</label>
-                        <input type="checkbox" id="replaying" name="replaying" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" />
+                            <div class="flex items-center me-4">
+                                <label for="replaying" class="mr-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Rejugando</label>
+
+                                <label class="flex items-center cursor-pointer relative">
+                                    <input type="checkbox" value="Si" {% if juego.rejugando == 'Si' %} checked {% endif %} class="peer h-5 w-5 cursor-pointer transition-all appearance-none rounded shadow hover:shadow-md border border-slate-300 checked:bg-slate-800 checked:border-slate-800" id="check" />
+                                    <span class="absolute text-white opacity-0 peer-checked:opacity-100 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 pointer-events-none">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor" stroke="currentColor" stroke-width="1">
+                                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                                        </svg>
+                                    </span>
+                                </label>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label for="qualification" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Calificación</label>
+                        <input type="float" id="qualification" name="qualification" value="{{ juego.Calificacion }}" required min="0" max="10" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:focus:border-indigo-500 dark:focus:ring-indigo-500" />
+                    </div>
+
+                    <div class="space-y-2">
+                        <label for="runNumber" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Veces jugado</label>
+                        <input type="number" id="runNumber" value="{{ juego.runN }}" name="runNumber" required min="0" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:focus:border-indigo-500 dark:focus:ring-indigo-500" />
+                    </div>
+
+                    <div class="space-y-2 rounded-lg">
+                        <label for="endDate" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Fecha finalizado</label>
+                        <input type="date" id="endDate"  value="{{ juego.fecha_finalizado }}" name="endDate" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:focus:border-indigo-500 dark:focus:ring-indigo-500" />
                     </div>
                 </div>
             </div>
 
-            <div class="space-y-2">
-                <label for="qualification" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Qualification</label>
-                <input type="number" id="qualification" name="qualification" required min="0" max="10" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:focus:border-indigo-500 dark:focus:ring-indigo-500" />
+            <div class="space-y-2 rounded-lg bg-gray-50 p-2 dark:bg-gray-700">
+                <label for="comment" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Comment</label>
+                <textarea id="comment" name="comment" rows="4" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:focus:border-indigo-500 dark:focus:ring-indigo-500">{{ juego.DatosAdicionales }}</textarea>
             </div>
 
-            <div class="space-y-2">
-                <label for="runNumber" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Run Number</label>
-                <input type="number" id="runNumber" name="runNumber" required min="0" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:focus:border-indigo-500 dark:focus:ring-indigo-500" />
-            </div>
-
-            <div class="space-y-2 rounded-lg">
-                <label for="endDate" class="block text-sm font-medium text-gray-700 dark:text-gray-300">End Date</label>
-                <input type="date" id="endDate" name="endDate" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:focus:border-indigo-500 dark:focus:ring-indigo-500" />
-            </div>
-            </div>
-        </div>
-
-        <div class="space-y-2 rounded-lg bg-gray-50 p-2 dark:bg-gray-700">
-            <label for="comment" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Comment</label>
-            <textarea id="comment" name="comment" rows="3" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:focus:border-indigo-500 dark:focus:ring-indigo-500"></textarea>
-        </div>
-
-        <button type="submit" class="w-full transform rounded-lg bg-indigo-600 px-4 py-2 font-semibold text-white transition duration-300 ease-in-out hover:scale-105 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600">Create Game</button>
+            <button type="submit" class="w-full transform rounded-lg bg-indigo-600 px-4 py-2 font-semibold text-white transition duration-300 ease-in-out hover:scale-105 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600">Confirmar</button>
         </form>
     </div>
 </div>
-{% endblock content %} {% block script %}
-    <script> tailwind.config = { darkMode: 'class', } </script> 
+{% endblock content %} 
+
+{% block script %}
     <script src="{{ url_for('static', filename='./js/darkmode.js') }}"></script>
+    <script src="{{ url_for('static', filename='./js/edit.js') }}"></script>
 {% endblock script %}

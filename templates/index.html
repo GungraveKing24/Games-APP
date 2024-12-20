@@ -8,18 +8,20 @@
 
 
 {% block content %}
-<div class="steam-cards">
+<div class="steam-cards mx-5">
     <div class="d-steam-cards js-steamCards">
         {% for juego in juegos %}
-            <div class="d-steam-card-wrapper">
-                <div class="d-steam-card js-steamCard" style="background-image: url('{{ url_for('static', filename='images/' + juego.img) }}')"></div>
-                <P class="text-center text"> {{ juego.juego }} </P>
+        <div class="d-steam-card-wrapper js-steamCardWrapper" data-id="{{ juego.id }}">
+            <div class="d-steam-card" 
+                style="background-image: url('{{ url_for('static', filename='images/' + juego.img) }}')">
             </div>
+            <p class="text-center my-2 text ">{{ juego.juego }}</p>
+        </div>
         {% endfor %}
     </div>
 </div>
 {% endblock content %}
 
 {% block script %}
-
+    <script src="{{ url_for('static', filename='./js/index.js') }}"></script>
 {% endblock script %}

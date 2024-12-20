@@ -49,6 +49,7 @@
     z-index: 1;
     overflow: hidden;
 }
+
 .d-steam-card::before {
     width: 100%;
     height: 172%;

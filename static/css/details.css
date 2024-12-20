@@ -1,0 +1,45 @@
+.img-container {
+    position: relative;
+}
+
+.back-button {
+    position: absolute;
+    top: 10px;
+    left: -10px;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.2s;
+}
+
+.back-button:hover {
+    background-color: #2D3748; /* Fondo gris oscuro */
+}
+
+.back-button svg {
+    width: 20px;
+    height: 20px;
+}
+
+/* Asegurarse de que el contenedor de la imagen ocupe el 100% de la altura disponible */
+.img-container img {
+    width: 500px;
+    height: 100%;
+    padding-left: 10px;
+    padding-top: 20px;
+    object-fit: cover;
+    border-radius: 25px;
+}
+
+.content-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding-left: 1rem;
+    flex-grow: 1;
+}

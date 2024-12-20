@@ -6,19 +6,18 @@
 }
 
 :root {
-    /* ===== Colors ===== */
-    --body-color: #e4e9f7;
-    --sidebar-color: #fff;
-    --primary-color: #dc143c;
-    --primary-color-light: #f6f5ff;
-    --toggle-color: #ddd;
-    --text-color: #707070;
+    /* ===== Colors (Light Mode) ===== */
+    --body-color: #f5f6fa; /* Fondo claro */
+    --sidebar-color: #eaeaea; /* Sidebar ligeramente más oscuro */
+    --primary-color: #007acc; /* Azul vibrante para destacar */
+    --primary-color-light: #99d3ff; /* Azul claro para hover */
+    --toggle-color: #ccc; /* Color de íconos y elementos interactivos */
+    --text-color: #333; /* Texto oscuro para contraste */
 
     /* ====== Transition ====== */
     --tran-03: all 0.2s ease;
-    --tran-03: all 0.3s ease;
     --tran-04: all 0.3s ease;
-    --tran-05: all 0.3s ease;
+    --tran-05: all 0.4s ease;
 }
 
 body {
@@ -32,13 +31,15 @@ body {
     color: #fff;
 }
 
+
 body.dark {
-    --body-color: #18191a;
-    --sidebar-color: #242526;
-    --primary-color: #3a3b3c;
-    --primary-color-light: #3a3b3c;
-    --toggle-color: #fff;
-    --text-color: #ccc;
+    /* ===== Colors (Dark Mode) ===== */
+    --body-color: #1e1e2f; /* Fondo oscuro neutro */
+    --sidebar-color: #151521; /* Sidebar más oscuro */
+    --primary-color: #3d0271; /* Naranja vibrante para destacar */
+    --primary-color-light: #3d0271; /* Naranja claro para hover */
+    --toggle-color: #fff; /* Color de íconos y elementos interactivos */
+    --text-color: #e0e0e0; /* Texto claro para contraste */
 }
 
 /* ===== Sidebar ===== */
@@ -53,6 +54,7 @@ body.dark {
     transition: var(--tran-05);
     z-index: 100;
 }
+
 .sidebar.close {
     width: 88px;
 }
@@ -296,7 +298,7 @@ body.dark .switch::before {
     font-size: 15px;
     font-weight: 100;
     color: var(--text-color);
-    padding: 12px 60px;
+    padding: 12px;
 }
 
 .sidebar.close ~ .home {
