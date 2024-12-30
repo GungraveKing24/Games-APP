@@ -217,4 +217,4 @@ def delete_image(filename):
         return jsonify({"error": str(e), "message": "Hubo un error al eliminar la imagen"}), 500
 
 if __name__ == '__main__':
-    app.run(debug=False, host='0.0.0.0')
+    app.run(debug=True, host='0.0.0.0')
