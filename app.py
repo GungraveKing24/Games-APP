@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, jsonify, flash
+from flask import Flask, render_template, request, redirect, url_for, jsonify, flash, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
 from steamgrid import SteamGridDB
 from werkzeug.utils import secure_filename
@@ -59,6 +59,56 @@ def details(id):
     if juego.fecha_finalizado:
         juego.fecha_finalizado = juego.fecha_finalizado.strftime('%d/%m/%Y')
     return render_template('details.html', juego=juego)
+
+@app.route('/create', methods=['GET', 'POST'])
+def create():
+    if request.method == 'POST':
+        # Validar datos del formulario
+        juego = request.form.get('name')
+        estado = request.form.get('state')
+        runN = request.form.get('runNumber')
+        rejugando = request.form.get('replaying')
+        DatosAdicionales = request.form.get('comment')
+        Calificacion = request.form.get('qualification')
+        fecha_finalizado = request.form.get('endDate')
+        imgurl = request.form.get('imgurl')
+        imgfile = request.files.get('imgfile')
+        if runN == '': runN = 0
+        if DatosAdicionales == '': DatosAdicionales = 'N/A'
+        if Calificacion == '': Calificacion = 0
+        if fecha_finalizado == '': fecha_finalizado = None
+
+        # Manejar la imagen
+        imgurl = request.form.get('imgurl')
+        imgfile = request.files.get('imgfile')
+
+        if imgfile:  # Prioridad a la imagen subida
+            img = save_uploaded_image(imgfile)
+            print("Imagen subida procesada:", img)
+        elif imgurl:  # Si no hay imagen subida, usar la URL
+            img = save_image_from_url(imgurl)
+            print("Imagen desde URL procesada:", img)
+        else:  # Si no hay cambios, mantener la imagen existente
+            print("No se realizaron cambios en la imagen.")
+
+        juego = games(
+            juego=juego,
+            estado=estado,
+            runN=runN,
+            rejugando=rejugando,
+            DatosAdicionales=DatosAdicionales,
+            Calificacion=Calificacion,
+            img=img,
+            fecha_finalizado=fecha_finalizado
+        )
+        try:
+            db.session.add(juego)
+            db.session.commit()
+            return jsonify({"message": "Juego creado exitosamente"}), 200
+        except Exception as e:
+            return jsonify({"error": str(e), "message": "Hubo un error al crear el juego"}), 500
+
+    return render_template('create.html')
 
 @app.route('/edit/<int:juego_id>', methods=['GET', 'POST'])
 def editar(juego_id):
@@ -215,6 +265,47 @@ def delete_image(filename):
         return jsonify({"message": "Imagen eliminada exitosamente"}), 200
     except Exception as e:
         return jsonify({"error": str(e), "message": "Hubo un error al eliminar la imagen"}), 500
+    
+BASE_DIR = os.path.abspath("D:\\Fondos de pantalla")
+
+@app.route('/media', methods=['GET'])
+def get_media_folders():
+    return render_template('folders.html')
+
+@app.route('/folders', methods=['GET'])
+def get_folders():
+    folder_data = []
+    if request.method == 'GET':
+        # Iterar por las carpetas en el directorio base
+        for folder in os.listdir(BASE_DIR):
+            folder_path = os.path.join(BASE_DIR, folder)
+            if os.path.isdir(folder_path):
+                # Buscar imágenes dentro de la carpeta
+                images = [img for img in os.listdir(folder_path) if img.lower().endswith(('.png', '.jpg', '.jpeg', '.gif'))]
+                images.sort(key=lambda x: os.path.getmtime(os.path.join(folder_path, x)), reverse=True)
+                thumbnail = images[0] if images else None
+                
+                folder_data.append({
+                    "name": folder,
+                    "thumbnail": thumbnail,  # Solo el nombre de la imagen
+                })
+    
+    return jsonify(folder_data)
+
+@app.route('/images/<path:folder>/<path:filename>')
+def serve_image(folder, filename):
+    folder_path = os.path.join(BASE_DIR, folder)
+    return send_from_directory(folder_path, filename)
+
+@app.route("/folder/<folder_name>")
+def folder(folder_name):
+    # Aquí puedes incluir la lógica para obtener las imágenes de la carpeta
+    # Si deseas cargar las imágenes de la carpeta, deberías hacer algo como:
+    folder_path = os.path.join(BASE_DIR, folder_name)
+    images = [img for img in os.listdir(folder_path) if img.lower().endswith(('.png', '.jpg', '.jpeg', '.gif'))]
+    images_urls = [url_for('serve_image', folder=folder_name, filename=img) for img in images]
+    
+    return render_template("folder_content.html", folder_name=folder_name, images=images_urls)
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')

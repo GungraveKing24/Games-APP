@@ -2,7 +2,7 @@
     <header>
         <div class="image-text">
         <span class="image">
-            <img src="https://drive.google.com/uc?export=view&id=1ETZYgPpWbbBtpJnhi42_IR3vOwSOpR4z" alt="">
+            <img class="rounded" src="{{ url_for('static', filename='favicon.ico') }}" alt="">
         </span>
         <div class="text logo-text">
             <span class="name">Stella Army </span>
@@ -23,23 +23,29 @@
             
         <ul class="menu-links">
             <li class="nav-link">
-            <a href="{{ url_for ('index') }}">
-                <i class='bx bx-home-alt icon'></i>
-                <span class="text nav-text">Inicio</span>
-            </a>
+                <a href="{{ url_for ('index') }}">
+                    <i class='bx bx-home-alt icon'></i>
+                    <span class="text nav-text">Inicio</span>
+                </a>
             </li>
             <li class="nav-link">
-            <a href="#">
-                <i class='bx bx-plus icon'></i>
-                <span class="text nav-text">Añadir Juego</span>
-            </a>
+                <a href="/create">
+                    <i class='bx bx-plus icon'></i>
+                    <span class="text nav-text">Añadir Juego</span>
+                </a>
             </li>
             <li class="nav-link">
-            <a href="/config">
-                <!-- Settings -->
-                <i class='bx bx-cog icon'></i>
-                <span class="text nav-text">Configuraciones </span>
-            </a>
+                <a href="/media">
+                    <i class='bx bx-folder icon'></i>
+                    <span class="text nav-text">Carpetas</span>
+                </a>
+            </li>
+            <li class="nav-link">
+                <a href="/config">
+                    <!-- Settings -->
+                    <i class='bx bx-cog icon'></i>
+                    <span class="text nav-text">Configuraciones </span>
+                </a>
             </li>
         </ul>
         </div>

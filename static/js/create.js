@@ -3,11 +3,12 @@ const resultslist = document.getElementById('buscadorresults');
 const imagepreview = document.getElementById('imagePreview');
 const uploadBtn = document.getElementById('uploadBtn');
 const searchBtnimg = document.getElementById('searchBtn');
-const check = document.getElementById('check');
+
 
 let uploadedImage = null; // Para almacenar la imagen subida
 let selectedImages = []; // Array para almacenar las URLs de las imágenes del datagrid
 let currentImageIndex = 0; // Índice de la imagen actual
+
 
 // Evento para manejar la carga de imágenes
 uploadBtn.addEventListener('click', () => {
@@ -37,7 +38,6 @@ uploadBtn.addEventListener('click', () => {
     input.click(); // Abrir el selector de archivos
 });
 
-// Evento para mostrar la siguiente imagen al hacer clic en "Search"
 searchBtnimg.addEventListener('click', () => {
     if (selectedImages.length > 1) {
         currentImageIndex = (currentImageIndex + 1) % selectedImages.length; // Ciclar entre las imágenes
@@ -45,7 +45,6 @@ searchBtnimg.addEventListener('click', () => {
     }
 });
 
-// Función para mostrar la imagen
 function showImage() {
     imagepreview.innerHTML = '';
     if (uploadedImage) {
@@ -132,8 +131,6 @@ check.addEventListener('change', () => {
 // Evento para manejar el envío del formulario
 document.getElementById('gameForm').addEventListener('submit', async function (event) {
     event.preventDefault(); // Evita el envío predeterminado
-    const id = document.getElementById('idgame').value;
-    
     const formData = new FormData(this);
 
     if (check.value === 'Si') {
@@ -151,21 +148,19 @@ document.getElementById('gameForm').addEventListener('submit', async function (e
         formData.append('imgurl', selectedImages[currentImageIndex]);
         console.log("Imagen seleccionada enviada.");
     }
-
+    
     try {
-        const response = await fetch(`/edit/${id}`, {
+        const response = await fetch('/create', {
             method: 'POST',
             body: formData, // No incluir `Content-Type` explícitamente, se gestiona automáticamente
         });
 
         if (response.ok) {
-            window.location.href = `/details/${id}`; // Redirigir al detalle del juego
+            alert('Juego creado correctamente.');
         } else {
-            const errorData = await response.json();
-            alert('Error: ' + (errorData.message || 'Ocurrió un error al guardar los cambios.'));
+            alert('Error al crear el juego.');
         }
     } catch (error) {
-        console.error('Error:', error);
-        alert('Ocurrió un error inesperado.');
+        console.error('Error al crear el juego:', error);
     }
 });
