@@ -1,5 +1,5 @@
 async function fetchFolders() {
-    const response = await fetch('/folders');
+    const response = await fetch('/folders', { priority: 'high' });
     const folders = await response.json(); // Datos en formato JSON
 
     const gallery = document.getElementById("imageGallery");
@@ -21,7 +21,7 @@ async function fetchFolders() {
 
         const title = document.createElement("div");
         title.className = "p-4";
-        title.innerHTML = `<h2 class="text-lg font-semibold text-gray-800 dark:text-gray-200">${folder.name}</h2>`;
+        title.innerHTML = `<h2 class="text-lg font-semibold text-gray-800 dark:text-gray-200">${folder.name} (${folder.count}) </h2>`;
 
         // Ensamblar elementos
         link.appendChild(img);

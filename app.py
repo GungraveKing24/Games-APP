@@ -284,9 +284,11 @@ def get_folders():
                 images = [img for img in os.listdir(folder_path) if img.lower().endswith(('.png', '.jpg', '.jpeg', '.gif'))]
                 images.sort(key=lambda x: os.path.getmtime(os.path.join(folder_path, x)), reverse=True)
                 thumbnail = images[0] if images else None
+                image_count = len(images) 
                 
                 folder_data.append({
                     "name": folder,
+                    "count": image_count,
                     "thumbnail": thumbnail,  # Solo el nombre de la imagen
                 })
     
