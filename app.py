@@ -2,6 +2,8 @@ from flask import Flask, render_template, request, redirect, url_for, jsonify, f
 from flask_sqlalchemy import SQLAlchemy
 from steamgrid import SteamGridDB
 from werkzeug.utils import secure_filename
+from whitenoise import WhiteNoise
+from PIL import Image
 from datetime import date
 import os, requests, uuid
 
@@ -12,11 +14,13 @@ app.secret_key = '25as52x24da29s8'
 DATABASE_PATH = os.path.join(os.path.dirname(__file__), 'static/database/Juegos_datos.db')
 UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), 'static', 'images')
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+BASE_DIR = os.path.abspath("E:\\Fondos de pantalla")
 
 app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{DATABASE_PATH}'
 app.config['MAX_CONTENT_LENGTH'] = 10 * 1024 * 1024  # 10MB
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.wsgi_app = WhiteNoise(app.wsgi_app, root=BASE_DIR, prefix="media/")
 
 db = SQLAlchemy(app)
 
@@ -32,10 +36,6 @@ class games(db.Model):
     Calificacion = db.Column(db.Float, nullable=False)
     img = db.Column(db.String(255), nullable=True)
     fecha_finalizado = db.Column(db.Date, nullable=True)
-
-# Crear las tablas en la base de datos
-with app.app_context():
-    db.create_all()
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -265,8 +265,6 @@ def delete_image(filename):
         return jsonify({"message": "Imagen eliminada exitosamente"}), 200
     except Exception as e:
         return jsonify({"error": str(e), "message": "Hubo un error al eliminar la imagen"}), 500
-    
-BASE_DIR = os.path.abspath("D:\\Fondos de pantalla")
 
 @app.route('/media', methods=['GET'])
 def get_media_folders():
@@ -297,17 +295,31 @@ def get_folders():
 @app.route('/images/<path:folder>/<path:filename>')
 def serve_image(folder, filename):
     folder_path = os.path.join(BASE_DIR, folder)
-    return send_from_directory(folder_path, filename)
+    response = send_from_directory(folder_path, filename)
+    response.headers['Cache-Control'] = 'public, max-age=31536000'
+    return response
 
 @app.route("/folder/<folder_name>")
 def folder(folder_name):
-    # Aquí puedes incluir la lógica para obtener las imágenes de la carpeta
-    # Si deseas cargar las imágenes de la carpeta, deberías hacer algo como:
     folder_path = os.path.join(BASE_DIR, folder_name)
+    if not os.path.isdir(folder_path):
+        return render_template("folder_content.html", folder_name=folder_name, images_urls=[])
+
+    # Obtener todas las imágenes en la carpeta
     images = [img for img in os.listdir(folder_path) if img.lower().endswith(('.png', '.jpg', '.jpeg', '.gif'))]
-    images_urls = [url_for('serve_image', folder=folder_name, filename=img) for img in images]
-    
-    return render_template("folder_content.html", folder_name=folder_name, images=images_urls)
+    images_info = []
+
+    for img in images:
+        img_path = os.path.join(folder_path, img)
+        with Image.open(img_path) as image:
+            width, height = image.size
+        images_info.append({
+            "url": url_for('serve_image', folder=folder_name, filename=img),
+            "width": width,
+            "height": height
+        })
+
+    return render_template("folder_content.html", folder_name=folder_name, images_urls=images_info)
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')

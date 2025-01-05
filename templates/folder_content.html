@@ -1,92 +1,71 @@
 {% extends "base.html" %}
 
-{% block title %}Detalles de la Carpeta{% endblock title %}
+{% block title %}Galería de Imágenes{% endblock title %}
 
 {% block style %}
-    <style>
-        img {
-            opacity: 0;
-            transition: opacity 0.5s ease, transform 0.3s ease;
-        }
+<style>
+    .justified-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px; /* Espaciado entre imágenes */
+    }
 
-        img[data-loaded="true"] {
-            opacity: 1;
-        }
-
-        img:hover {
-            transform: scale(1.05);
-            transition: transform 0.3s ease-in-out;
-        }
-
-        .cosas {
-            height: 200px + (i % 3) * 100;
-            width: 300px;
-        }
-    </style>
+    .item img {
+        display: block;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra opcional */
+    }
+</style>
 {% endblock style %}
 
 {% block content %}
 <div class="container mx-auto p-4">
-    <main>
-        <h2 id="folderTitle" class="text-2xl font-bold mb-6 text-dark dark:text-white">Imágenes de la Carpeta {{ folder_name }}</h2>
-        <a href="{{ url_for('get_media_folders') }}" class="text-blue-500 dark:text-blue-400 hover:underline mb-4 inline-block">
-            &larr; Volver a carpetas
-        </a>
-        <div id="imageContainer" class="columns-1 sm:columns-2 md:columns-3 lg:columns-4 gap-4">
-            <!-- Las imágenes se cargarán aquí dinámicamente -->
-            {% for image_url in images %}
-                <div class="break-inside-avoid mb-4">
-                    <img 
-                        class="w-full rounded-lg shadow-md cosas" 
-                        data-src="{{ image_url }}" 
-                        alt="Imagen de la carpeta" 
-                        data-loaded="false" 
-                        loading="lazy">
-                </div>
-            {% endfor %}
-        </div>
-    </main>
+    <h2>{{ folder_name }}</h2>
+    <div class="justified-grid" id="justifiedGrid">
+        {% for image in images_urls %}
+            <div class="item">
+                <img src="{{ image.url }}" alt="Imagen" loading="lazy" data-width="{{ image.width }}" data-height="{{ image.height }}">
+            </div>
+        {% endfor %}
+    </div>
 </div>
 {% endblock content %}
 
 {% block script %}
 <script>
-    // Seleccionar todas las imágenes con el atributo `data-src` para lazy loading
-    const images = document.querySelectorAll('img[data-src]');
+    document.addEventListener("DOMContentLoaded", () => {
+        const container = document.getElementById('justifiedGrid');
+        const gap = 10; // Espaciado entre imágenes
+        const rowHeight = 300; // Altura deseada para las filas
 
-    // Función para comprobar si una imagen está en el viewport
-    function isImageInViewport(img) {
-        const rect = img.getBoundingClientRect();
-        return rect.top >= 0 && rect.left >= 0 && rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) && rect.right <= (window.innerWidth || document.documentElement.clientWidth);
-    }
+        function layoutImages() {
+            const items = Array.from(container.querySelectorAll(".item img"));
+            let row = [];
+            let rowWidth = 0;
 
-    // Función para cargar las imágenes solo cuando estén en el viewport
-    function loadImage(img) {
-        const src = img.getAttribute('data-src');
-        if (src) {
-            img.src = src; // Establecer la fuente real de la imagen
-            img.onload = () => {
-                img.setAttribute('data-loaded', 'true'); // Cambiar el estado a cargado
-            };
+            // Calcular las proporciones y ajustar el layout
+            items.forEach((img, index) => {
+                const aspectRatio = img.dataset.width / img.dataset.height;
+                const targetWidth = rowHeight * aspectRatio;
+
+                row.push({ img, targetWidth, aspectRatio });
+                rowWidth += targetWidth + gap;
+
+                // Si la fila supera el ancho del contenedor o es la última imagen
+                if (rowWidth > container.clientWidth || index === items.length - 1) {
+                    const scale = (container.clientWidth - gap * (row.length - 1)) / rowWidth;
+                    row.forEach(({ img, targetWidth }) => {
+                        img.style.width = `${targetWidth * scale}px`;
+                        img.style.height = `${rowHeight * scale}px`;
+                    });
+                    row = [];
+                    rowWidth = 0;
+                }
+            });
         }
-    }
 
-    // Cargar imágenes cuando están cerca del viewport
-    function lazyLoadImages() {
-        images.forEach(img => {
-            if (isImageInViewport(img) && img.getAttribute('data-loaded') === 'false') {
-                loadImage(img);
-            }
-        });
-    }
-
-    // Cargar imágenes al hacer scroll
-    window.addEventListener('scroll', lazyLoadImages);
-
-    // Cargar imágenes al cargar la página
-    window.addEventListener('load', lazyLoadImages);
-
-    // También cargar imágenes inmediatamente si ya están en el viewport al cargar la página
-    lazyLoadImages();
+        window.addEventListener("resize", layoutImages);
+        layoutImages();
+    });
 </script>
 {% endblock script %}
