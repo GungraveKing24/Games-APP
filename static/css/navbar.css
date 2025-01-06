@@ -109,20 +109,27 @@ body.dark {
     display: flex;
     align-items: center;
 }
+
 .sidebar header .logo-text {
     display: flex;
     flex-direction: column;
+    z-index: 0;
 }
+
 header .image-text .name {
     margin-top: 2px;
     font-size: 18px;
     font-weight: 600;
+    width: 0px;
+    z-index: 0;
 }
 
 header .image-text .profession {
     font-size: 16px;
     margin-top: -2px;
     display: block;
+    width: 0px;
+    z-index: 0;
 }
 
 .sidebar header .image {

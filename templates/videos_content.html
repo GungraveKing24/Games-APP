@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}Videos {{ folder_name }}{% endblock title %}
+
+{% block content %}
+<div class="container mx-auto p-4">
+    <h1 class="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-200">Videos en la Carpeta {{ folder_name }}</h1>
+    <a href="/folderVideos" class="inline-block mb-4 text-blue-500 hover:underline">← Volver a las carpetas</a>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {% for video in videos %}
+            <a href="/{{ video.path }}" class="block bg-white dark:bg-gray-800 rounded-lg shadow hover:shadow-md transition-shadow overflow-hidden">
+                <img src="/{{ video.thumbnail }}" alt="Miniatura del video" class="w-full h-48 object-cover">
+                <div class="p-4">
+                    <h2 class="font-semibold mb-2 text-gray-800 dark:text-gray-200">{{ video.name }}</h2>
+                    <p class="text-gray-600">{{ video.duration }}</p>
+                </div>
+            </a>
+        {% endfor %}
+    </div>
+</div>
+{% endblock content %}

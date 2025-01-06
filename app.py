@@ -4,6 +4,7 @@ from steamgrid import SteamGridDB
 from werkzeug.utils import secure_filename
 from whitenoise import WhiteNoise
 from PIL import Image
+from moviepy.video.io.VideoFileClip import VideoFileClip
 from datetime import date
 import os, requests, uuid
 
@@ -14,7 +15,10 @@ app.secret_key = '25as52x24da29s8'
 DATABASE_PATH = os.path.join(os.path.dirname(__file__), 'static/database/Juegos_datos.db')
 UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), 'static', 'images')
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
-BASE_DIR = os.path.abspath("E:\\Fondos de pantalla")
+BASE_DIR = os.path.abspath("C:\\Users\\gungr\\Desktop\\Proyectos personales\\Fondos de pantalla")
+BASE_DIR_VIDEOS = os.path.abspath("C:\\Users\\gungr\\Desktop\\Cosas\\Videos")
+THUMBNAIL_PATH = "static/thumbnails"
+VIDEOS_THUMBNAIL_PATH = "static/thumbnails/videos_thumbnails"
 
 app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{DATABASE_PATH}'
 app.config['MAX_CONTENT_LENGTH'] = 10 * 1024 * 1024  # 10MB
@@ -23,6 +27,8 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.wsgi_app = WhiteNoise(app.wsgi_app, root=BASE_DIR, prefix="media/")
 
 db = SQLAlchemy(app)
+os.makedirs(THUMBNAIL_PATH, exist_ok=True)
+os.makedirs(VIDEOS_THUMBNAIL_PATH, exist_ok=True)
 
 # Definir la clase `games`
 class games(db.Model):
@@ -266,9 +272,9 @@ def delete_image(filename):
     except Exception as e:
         return jsonify({"error": str(e), "message": "Hubo un error al eliminar la imagen"}), 500
 
-@app.route('/media', methods=['GET'])
+@app.route('/media')
 def get_media_folders():
-    return render_template('folders.html')
+    return render_template('imagenes.html')
 
 @app.route('/folders', methods=['GET'])
 def get_folders():
@@ -303,7 +309,7 @@ def serve_image(folder, filename):
 def folder(folder_name):
     folder_path = os.path.join(BASE_DIR, folder_name)
     if not os.path.isdir(folder_path):
-        return render_template("folder_content.html", folder_name=folder_name, images_urls=[])
+        return render_template("imagenes_content.html", folder_name=folder_name, images_urls=[])
 
     # Obtener todas las imágenes en la carpeta
     images = [img for img in os.listdir(folder_path) if img.lower().endswith(('.png', '.jpg', '.jpeg', '.gif'))]
@@ -319,7 +325,100 @@ def folder(folder_name):
             "height": height
         })
 
-    return render_template("folder_content.html", folder_name=folder_name, images_urls=images_info)
+    return render_template("imagenes_content.html", folder_name=folder_name, images_urls=images_info)
+
+def get_thumbnail(video_path, video_name):
+    thumbnail_file = os.path.join(THUMBNAIL_PATH, f"{video_name}.jpg")
+    thumbnail_file = thumbnail_file.replace("\\", "/")  # Asegúrate de usar barras normales
+    if not os.path.exists(thumbnail_file):
+        try:
+            clip = VideoFileClip(video_path)
+            clip.save_frame(thumbnail_file, t=1)  # Extrae el fotograma en el segundo 1
+            clip.close()
+        except Exception as e:
+            print(f"Error generando miniatura para {video_path}: {e}")
+    return thumbnail_file
+
+def get_video_thumbnail(video_path, video_name):
+    thumbnail_file = os.path.join(VIDEOS_THUMBNAIL_PATH, f"{video_name}.jpg")
+    thumbnail_file = thumbnail_file.replace("\\", "/")  # Usar barras normales
+    if not os.path.exists(thumbnail_file):
+        try:
+            clip = VideoFileClip(video_path)
+            clip.save_frame(thumbnail_file, t=1)  # Extraer fotograma en el segundo 1
+            clip.close()
+        except Exception as e:
+            print(f"Error generando miniatura para {video_path}: {e}")
+    return thumbnail_file
+
+def get_video_duration(video_path):
+    try:
+        clip = VideoFileClip(video_path)
+        duration = int(clip.duration)  # Duración en segundos
+        clip.close()
+
+        # Convertir a formato HH:MM:SS
+        hours, remainder = divmod(duration, 3600)
+        minutes, seconds = divmod(remainder, 60)
+        return f"{hours:02}:{minutes:02}:{seconds:02}"
+    except Exception as e:
+        print(f"Error obteniendo duración de {video_path}: {e}")
+        return "Desconocida"
+
+@app.route("/folderVideos")
+def folder_videos():
+    folders = []
+
+    for folder in os.listdir(BASE_DIR_VIDEOS):
+        folder_path = os.path.join(BASE_DIR_VIDEOS, folder)
+        if os.path.isdir(folder_path):
+            videos = [
+                f for f in os.listdir(folder_path)
+                if f.lower().endswith(('.mp4', '.avi', '.mkv', '.mov', '.wmv'))
+            ]
+            if videos:
+                first_video_path = os.path.join(folder_path, videos[0])
+                thumbnail = get_thumbnail(first_video_path, folder)
+                folders.append({
+                    "name": folder,
+                    "count": len(videos),
+                    "thumbnail": thumbnail,
+                })
+    
+    return render_template("videos.html", folders=folders)
+
+@app.route("/video/<folder_name>")
+def videos(folder_name):
+    folder_path = os.path.join(BASE_DIR_VIDEOS, folder_name)
+    if not os.path.exists(folder_path):
+        return "Carpeta no encontrada", 404
+
+    videos = [
+        f for f in os.listdir(folder_path)
+        if f.lower().endswith(('.mp4', '.mkv', '.avi', '.mov'))
+    ]
+    video_list = []
+    for video in videos:
+        video_path = os.path.join(folder_path, video)
+        thumbnail = get_video_thumbnail(video_path, video)
+        duration = get_video_duration(video_path)
+        video_list.append({
+            "name": video,
+            "path": f"videos/{folder_name}/{video}",
+            "thumbnail": thumbnail.replace("static/", ""),
+            "duration": duration,
+        })
+
+    return render_template("videos_content.html", folder_name=folder_name, videos=video_list)
+
+@app.route('/thumbnails/<path:filename>')
+def serve_thumbnails(filename):
+    return send_from_directory(THUMBNAIL_PATH, filename)
+
+@app.route('/videos/<path:folder>/<path:filename>')
+def serve_videos(folder, filename):
+    folder_path = os.path.join(BASE_DIR_VIDEOS, folder)
+    return send_from_directory(folder_path, filename)
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')

@@ -3,24 +3,24 @@
 {% block title %}Galería de Imágenes{% endblock title %}
 
 {% block style %}
-<style>
-    .justified-grid {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 10px; /* Espaciado entre imágenes */
-    }
-
-    .item img {
-        display: block;
-        border-radius: 8px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra opcional */
-    }
-</style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/folder_details.css') }}">
 {% endblock style %}
 
 {% block content %}
 <div class="container mx-auto p-4">
-    <h2>{{ folder_name }}</h2>
+    <!-- Sección que debe quedarse fija -->
+    <div class="sticky-section">
+        <div class="flex items-center">
+            <a href="/media" class="back-button">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+                </svg>
+            </a>
+            <h2 class="text-3xl font-bold text-gray-800 dark:text-gray-200">{{ folder_name }}</h2>
+        </div>
+    </div>
+
+    <!-- Grid de imágenes -->
     <div class="justified-grid" id="justifiedGrid">
         {% for image in images_urls %}
             <div class="item">

@@ -1,0 +1,54 @@
+.sticky-section {
+    position: sticky; /* Fija la posición cuando se hace scroll */
+    top: 0; /* Se queda en la parte superior de su contenedor */
+    z-index: 10; /* Asegura que quede sobre el resto del contenido */
+    background-color: #1e1e2f; /* Fondo para evitar solapamientos */
+    padding: 20px 30px;
+    user-select: none;
+}
+
+.sticky-section .flex {
+    align-items: center;
+    gap: 10px;
+}
+
+.back-button {
+    display: inline-flex; /* Asegura que todo el botón sea interactivo */
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background-color: #3d0271;
+    border-radius: 50%;
+    color: white;
+    text-decoration: none;
+    cursor: pointer;
+    user-select: none;
+}
+
+.back-button:hover {
+    background-color: #350261;
+    user-select: none;
+}
+
+.back-button svg {
+    width: 20px;
+    height: 20px;
+}
+
+.back-button svg path {
+    fill: white;
+    user-select: none;
+}
+
+.justified-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px; /* Espaciado entre imágenes */
+}
+
+.item img {
+    display: block;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra opcional */
+}
