@@ -3,6 +3,10 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+#carpeta de imagenes
+.static/thumbnails/
+.static/thumbnails/videos_thumbnails
+
 # C extensions
 *.so
 
