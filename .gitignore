@@ -3,9 +3,11 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-#carpeta de imagenes
+# Ignorar la carpeta de thumbnails
 .static/thumbnails/
-.static/thumbnails/videos_thumbnails
+
+# Ignorar la carpeta de videos_thumbnails dentro de thumbnails
+.static/thumbnails/videos_thumbnails/
 
 # C extensions
 *.so
