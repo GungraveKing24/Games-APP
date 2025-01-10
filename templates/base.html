@@ -14,7 +14,12 @@
 
 </head>
 <body>
-    {% include 'navbar.html' %}
+    <!-- Diferente para mobil o PC -->
+    {% if request.user_agent.is_mobile %}
+        {% include 'navbarMobile.html' %}
+    {% else %}
+        {% include 'navbar.html' %}
+    {% endif %}
 
     <section class="home">
         {% block content %} {% endblock content %}

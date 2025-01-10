@@ -6,6 +6,7 @@ from whitenoise import WhiteNoise
 from PIL import Image
 from moviepy.video.io.VideoFileClip import VideoFileClip
 from datetime import date
+from thumbnails import get_thumbnail
 import os, requests, uuid
 
 app = Flask(__name__)
@@ -16,12 +17,12 @@ DATABASE_PATH = os.path.join(os.path.dirname(__file__), 'static/database/Juegos_
 UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), 'static', 'images')
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 BASE_DIR = os.path.abspath("C:\\Users\\gungr\\Desktop\\Proyectos personales\\Fondos de pantalla")
-BASE_DIR_VIDEOS = os.path.abspath("C:\\Users\\gungr\\Desktop\\Cosas\\Videos")
+BASE_DIR_VIDEOS = os.path.abspath("C:\\Users\\gungr\\Desktop\\Proyectos personales\\Videos")
 THUMBNAIL_PATH = "static/thumbnails"
 VIDEOS_THUMBNAIL_PATH = "static/thumbnails/videos_thumbnails"
 
 app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{DATABASE_PATH}'
-app.config['MAX_CONTENT_LENGTH'] = 10 * 1024 * 1024  # 10MB
+app.config['MAX_CONTENT_LENGTH'] = 512 * 1024 * 1024  # 10MB
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.wsgi_app = WhiteNoise(app.wsgi_app, root=BASE_DIR, prefix="media/")
@@ -49,7 +50,6 @@ def allowed_file(filename):
 # Ruta de ejemplo para mostrar los juegos
 @app.route('/')
 def index():
-    # Consultar los juegos en la base de datos maximo 5
     juegos = games.query.all()
     return render_template('index.html', juegos=juegos)
 
@@ -79,11 +79,12 @@ def create():
         fecha_finalizado = request.form.get('endDate')
         imgurl = request.form.get('imgurl')
         imgfile = request.files.get('imgfile')
-        if runN == '': runN = 0
-        if DatosAdicionales == '': DatosAdicionales = 'N/A'
-        if Calificacion == '': Calificacion = 0
-        if fecha_finalizado == '': fecha_finalizado = None
-
+        
+        runN = '' if runN == '' else int(runN)
+        DatosAdicionales = '' if DatosAdicionales == '' else str(DatosAdicionales)
+        Calificacion = '' if Calificacion == '' else float(Calificacion)
+        fecha_finalizado = '' if fecha_finalizado == '' else date.fromisoformat(fecha_finalizado)
+        
         # Manejar la imagen
         imgurl = request.form.get('imgurl')
         imgfile = request.files.get('imgfile')
@@ -131,9 +132,13 @@ def editar(juego_id):
 
         fecha_finalizado = request.form.get('endDate')
         if fecha_finalizado:
-            fecha_finalizado = date.fromisoformat(fecha_finalizado) 
+            try:
+                fecha_finalizado = date.fromisoformat(fecha_finalizado)
+            except ValueError:
+                fecha_finalizado = None
         else:
             fecha_finalizado = None
+        juego.fecha_finalizado = fecha_finalizado
         
         # Manejar la imagen
         imgurl = request.form.get('imgurl')
@@ -305,17 +310,28 @@ def serve_image(folder, filename):
     response.headers['Cache-Control'] = 'public, max-age=31536000'
     return response
 
+@app.route("/folders/<folder_name>")
+def folders(folder_name):
+    return render_template("imagenes_content.html", folder_name=folder_name)
+
 @app.route("/folder/<folder_name>")
 def folder(folder_name):
     folder_path = os.path.join(BASE_DIR, folder_name)
     if not os.path.isdir(folder_path):
-        return render_template("imagenes_content.html", folder_name=folder_name, images_urls=[])
+        return jsonify({"error": "Folder not found"}), 404
 
-    # Obtener todas las imágenes en la carpeta
+    # Obtener las imágenes
     images = [img for img in os.listdir(folder_path) if img.lower().endswith(('.png', '.jpg', '.jpeg', '.gif'))]
-    images_info = []
 
-    for img in images:
+    # Parámetros de paginación
+    page = int(request.args.get("page", 1))
+    limit = int(request.args.get("limit", 20))
+    start = (page - 1) * limit
+    end = start + limit
+
+    # Crear información para las imágenes
+    images_info = []
+    for img in images[start:end]:
         img_path = os.path.join(folder_path, img)
         with Image.open(img_path) as image:
             width, height = image.size
@@ -325,19 +341,7 @@ def folder(folder_name):
             "height": height
         })
 
-    return render_template("imagenes_content.html", folder_name=folder_name, images_urls=images_info)
-
-def get_thumbnail(video_path, video_name):
-    thumbnail_file = os.path.join(THUMBNAIL_PATH, f"{video_name}.jpg")
-    thumbnail_file = thumbnail_file.replace("\\", "/")  # Asegúrate de usar barras normales
-    if not os.path.exists(thumbnail_file):
-        try:
-            clip = VideoFileClip(video_path)
-            clip.save_frame(thumbnail_file, t=1)  # Extrae el fotograma en el segundo 1
-            clip.close()
-        except Exception as e:
-            print(f"Error generando miniatura para {video_path}: {e}")
-    return thumbnail_file
+    return jsonify(images_info)
 
 def get_video_thumbnail(video_path, video_name):
     thumbnail_file = os.path.join(VIDEOS_THUMBNAIL_PATH, f"{video_name}.jpg")
@@ -419,6 +423,25 @@ def serve_thumbnails(filename):
 def serve_videos(folder, filename):
     folder_path = os.path.join(BASE_DIR_VIDEOS, folder)
     return send_from_directory(folder_path, filename)
+
+@app.route("/upload_video/<folder_name>", methods=["POST"])
+def upload_video(folder_name):
+    folder_path = os.path.join(BASE_DIR_VIDEOS, folder_name)
+
+    if "video" not in request.files:
+        return jsonify({"error": "No se ha seleccionado ningún archivo de video"}), 400
+
+    video_file = request.files["video"]
+
+    if not video_file.filename.lower().endswith(('.mp4', '.avi', '.mkv', '.mov', '.wmv')):
+        return jsonify({"error": "Tipo de archivo no permitido. Solo se permiten archivos de video."}), 400
+
+    try:
+        # Guardar el archivo
+        video_file.save(os.path.join(folder_path, video_file.filename))
+        return jsonify({"message": "Video subido exitosamente.", "filename": video_file.filename}), 200
+    except Exception as e:
+        return jsonify({"error": f"Error al subir el video: {str(e)}"}), 500
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0')

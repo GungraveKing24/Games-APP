@@ -22,12 +22,11 @@
 
     <!-- Grid de imágenes -->
     <div class="justified-grid" id="justifiedGrid">
-        {% for image in images_urls %}
-            <div class="item">
-                <img src="{{ image.url }}" alt="Imagen" loading="lazy" data-width="{{ image.width }}" data-height="{{ image.height }}">
-            </div>
-        {% endfor %}
+        <div id="loading" style="text-align: center; display: none;">
+            <p>Cargando más imágenes...</p>
+        </div>
     </div>
+
 </div>
 {% endblock content %}
 
@@ -35,15 +34,21 @@
 <script>
     document.addEventListener("DOMContentLoaded", () => {
         const container = document.getElementById('justifiedGrid');
+        const loading = document.getElementById('loading');
+        const folderName = "{{ folder_name }}";
+        let page = 1;
+        const limit = 20; // Número de imágenes por solicitud
+        let isLoading = false;
+
         const gap = 10; // Espaciado entre imágenes
         const rowHeight = 300; // Altura deseada para las filas
 
+        // Función para organizar imágenes en una cuadrícula justificada
         function layoutImages() {
-            const items = Array.from(container.querySelectorAll(".item img"));
+            const items = Array.from(container.querySelectorAll("img"));
             let row = [];
             let rowWidth = 0;
 
-            // Calcular las proporciones y ajustar el layout
             items.forEach((img, index) => {
                 const aspectRatio = img.dataset.width / img.dataset.height;
                 const targetWidth = rowHeight * aspectRatio;
@@ -51,7 +56,6 @@
                 row.push({ img, targetWidth, aspectRatio });
                 rowWidth += targetWidth + gap;
 
-                // Si la fila supera el ancho del contenedor o es la última imagen
                 if (rowWidth > container.clientWidth || index === items.length - 1) {
                     const scale = (container.clientWidth - gap * (row.length - 1)) / rowWidth;
                     row.forEach(({ img, targetWidth }) => {
@@ -64,8 +68,53 @@
             });
         }
 
+        // Función para cargar imágenes desde el servidor
+        async function loadImages() {
+            if (isLoading) return;
+            isLoading = true;
+            loading.style.display = "block";
+
+            try {
+                const response = await fetch(`/folder/${folderName}?page=${page}&limit=${limit}`);
+                const images = await response.json();
+
+                if (images.length === 0) {
+                    // No hay más imágenes para cargar
+                    window.removeEventListener("scroll", handleScroll);
+                } else {
+                    images.forEach(({ url, width, height }) => {
+                        const img = document.createElement("img");
+                        img.src = url;
+                        img.dataset.width = width;
+                        img.dataset.height = height;
+                        container.appendChild(img);
+                    });
+                    page++;
+                    layoutImages(); // Reorganiza la cuadrícula después de agregar las nuevas imágenes
+                }
+            } catch (error) {
+                console.error("Error cargando imágenes:", error);
+            } finally {
+                isLoading = false;
+                loading.style.display = "none";
+            }
+        }
+
+        // Función para manejar el evento de scroll
+        function handleScroll() {
+            const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
+            const proximityThreshold = 700;
+            console.log(scrollTop, scrollHeight, clientHeight)
+            if (scrollTop + clientHeight >= scrollHeight - 1500) {
+                loadImages();
+            }
+        }
+
+        // Inicializar
         window.addEventListener("resize", layoutImages);
-        layoutImages();
+        window.addEventListener("scroll", handleScroll);
+        loadImages();
     });
 </script>
+
 {% endblock script %}

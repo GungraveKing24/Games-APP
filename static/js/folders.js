@@ -9,7 +9,7 @@ async function fetchFolders() {
         wrapper.className = "bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden transition-transform hover:scale-105";
 
         const link = document.createElement("a");
-        link.href = `/folder/${encodeURIComponent(folder.name)}`;
+        link.href = `/folders/${encodeURIComponent(folder.name)}`;
         link.className = "block";
 
         const img = document.createElement("img");
