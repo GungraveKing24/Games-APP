@@ -16,6 +16,7 @@ app.secret_key = '25as52x24da29s8'
 DATABASE_PATH = os.path.join(os.path.dirname(__file__), 'static/database/Juegos_datos.db')
 UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), 'static', 'images')
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+
 # BASE_DIR = os.path.abspath("C:\\Users\\gungr\\Desktop\\Proyectos personales\\Fondos de pantalla")
 BASE_DIR = os.path.abspath("D:\\Imagenes")
 BASE_DIR_VIDEOS = os.path.abspath("C:\\Users\\gungr\\Desktop\\Proyectos personales\\Videos")
