@@ -19,7 +19,7 @@ ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
 # BASE_DIR = os.path.abspath("C:\\Users\\gungr\\Desktop\\Proyectos personales\\Fondos de pantalla")
 BASE_DIR = os.path.abspath("D:\\Imagenes")
-BASE_DIR_VIDEOS = os.path.abspath("C:\\Users\\gungr\\Desktop\\Proyectos personales\\Videos")
+BASE_DIR_VIDEOS = os.path.abspath("D:\\videos\\varios")
 THUMBNAIL_PATH = "static/thumbnails"
 VIDEOS_THUMBNAIL_PATH = "static/thumbnails/videos_thumbnails"
 
