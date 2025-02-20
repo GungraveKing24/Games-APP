@@ -1,77 +1,159 @@
-*,
-*::before,
-*::after {
-    box-sizing: border-box;
-}
-
-.steam-cards {
-    padding: 1.5rem;
-}
-
-.d-steam-cards {
-    margin-left: -1rem;
-    margin-right: -1rem;
-    display: flex;
-    flex-flow: row wrap;
-    justify-content: flex-start;
-    align-items: flex-start;
-}
-
-.d-steam-card-wrapper {
-    max-width: 250px;
-    min-width: 150px;
-    margin: 0;
-    flex: 0 1 16.66%;
-    padding: 1rem;
-}
-@media only screen and (max-width: 1200px) {
-    .d-steam-card-wrapper {
-        flex-basis: 20%;
-    }
-}
-@media only screen and (max-width: 768px) {
-    .d-steam-card-wrapper {
-        flex-basis: 25%;
-    }
-}
-
-.d-steam-card {
-    padding: 0 0 150% 0;
-    background: url("") no-repeat transparent 50% 50%;
-    background-size: cover;
-    border: 1px solid rgba(0, 0, 0, 0.25);
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 8px 10px -2px rgba(0, 0, 0, 0.5);
-    transition: all ease 0.28s 0.01s;
-    transform: perspective(222px) translate3d(0px, 5px, 0px) rotateX(0deg);
-    perspective-origin: top;
-    position: relative;
-    z-index: 1;
-    overflow: hidden;
-}
-
-.d-steam-card::before {
-    width: 100%;
-    height: 172%;
+.abs,
+h2:after,
+.cards .card figcaption,
+.cards .card:after,
+.news .card figcaption,
+.news .card:after,
+.news .article figcaption {
     position: absolute;
-    top: 0;
-    left: 0;
-    content: "";
-    background-image: linear-gradient(35deg, rgba(0, 0, 0, 0.1) 0%, rgba(0, 0, 0, 0.07) 51.5%, rgba(255, 255, 255, 0.15) 54%, rgba(255, 255, 255, 0.15) 100%);
-    transform: translateY(-36%);
-    opacity: 0.5;
-    transition: all ease 0.28s 0.01s;
 }
-.d-steam-card:hover, .d-steam-card:focus {
-    border: 1px solid rgba(0, 0, 0, 0.1);
-    transform: perspective(222px) translate3d(0px, 0px, 8px) rotateX(3deg);
-    transform-origin: center;
-    box-shadow: 0 14px 16px -2px rgba(0, 0, 0, 0.5);
+.rel,
+h2,
+h2 strong,
+.cards .card,
+.news .card,
+.news .article {
+    position: relative;
 }
-.d-steam-card:hover::before, .d-steam-card:focus::before {
-    opacity: 1;
-    transform: translateY(-20%);
+.fix {
+  position: fixed;
 }
-.d-steam-card:active {
-    filter: brightness(80%) contrast(110%);
+.dfix {
+  display: inline;
+}
+.dib {
+  display: inline-block;
+}
+.db {
+  display: block;
+}
+.dn {
+  display: none;
+}
+.df,
+.cards,
+.news {
+  display: flex;
+}
+.dif {
+  display: inline-flex;
+}
+.dg {
+  display: grid;
+}
+.dig {
+  display: inline-grid;
+}
+.vm,
+h2,
+h2 strong,
+h2 span {
+  vertical-align: middle;
+}
+body {
+  background: #24282f;
+  font-family: 'Alegreya Sans';
+}
+.wrapper {
+  padding: 15px;
+  margin-left: 5px;
+}
+h2 {
+  padding: 10px;
+  padding-left: 25px;
+  margin: 0;
+}
+h2 strong {
+  z-index: 2;
+  background: #24282f;
+  padding: 4px 8px;
+}
+h2 span {
+  font-size: 0.7em;
+  color: #aaa;
+  margin-left: 10px;
+}
+h2:after {
+  content: '';
+  z-index: 1;
+  bottom: 50%;
+  margin-bottom: -2px;
+  height: 2px;
+  left: 0;
+  right: 0;
+  background: #373d47;
+}
+.cards,
+.news {
+  flex-flow: row wrap;
+}
+.cards .card,
+.news .card {
+  margin: 20px;
+  width: 180px;
+  height: 270px;
+  overflow: hidden;
+  box-shadow: 0 5px 10px rgba(0,0,0,0.8);
+  transform-origin: center top;
+  transform-style: preserve-3d;
+  transform: translateZ(0);
+  transition: 0.3s;
+}
+.cards .card img,
+.news .card img {
+  width: 100%;
+  min-height: 100%;
+}
+.cards .card figcaption,
+.news .card figcaption {
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 20px;
+  padding-bottom: 10px;
+  font-size: 20px;
+  background: none;
+  color: #fff;
+  transform: translateY(100%);
+  transition: 0.3s;
+}
+.cards .card:after,
+.news .card:after {
+  content: '';
+  z-index: 10;
+  width: 200%;
+  height: 100%;
+  top: -90%;
+  left: -20px;
+  opacity: 0.1;
+  transform: rotate(45deg);
+  background: linear-gradient(to top, transparent, #fff 15%, rgba(255,255,255,0.5));
+  transition: 0.3s;
+}
+.cards .card:hover,
+.news .card:hover,
+.cards .card:focus,
+.news .card:focus,
+.cards .card:active,
+.news .card:active {
+    box-shadow: 0 8px 16px 3px rgba(0,0,0,0.6);
+    transform: translateY(-3px) scale(1.05) rotateX(15deg);
+}
+.cards .card:hover figcaption,
+.news .card:hover figcaption,
+.cards .card:focus figcaption,
+.news .card:focus figcaption,
+.cards .card:active figcaption,
+.news .card:active figcaption {
+    transform: none;
+}
+.cards .card:hover:after,
+.news .card:hover:after,
+.cards .card:focus:after,
+.news .card:focus:after,
+.cards .card:active:after,
+.news .card:active:after {
+  transform: rotate(25deg);
+  top: -40%;
+  opacity: 0.15;
 }

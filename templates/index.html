@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 
 {% block title %} Home {% endblock title %}
 
@@ -6,20 +6,20 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
 {% endblock style %}
 
-
 {% block content %}
-<div class="steam-cards mx-5">
-    <div class="d-steam-cards js-steamCards">
+<div class="wrapper py-5">
+	<h2 class="text-4xl font-semibold text-gray-800 dark:text-gray-200">
+        <strong>Todos los juegos<span >( {{ count }} )</span></strong>
+    </h2>
+
+	<div class="cards">
         {% for juego in juegos %}
-        <div class="d-steam-card-wrapper js-steamCardWrapper" data-id="{{ juego.id }}">
-            <div class="d-steam-card" 
-                style="background-image: url('{{ url_for('static', filename='images/' + juego.img) }}')">
-            </div>
-            <p class="text-center my-2 text ">{{ juego.juego }}</p>
-        </div>
+            <figure class="card" data-id="{{ juego.id }}">
+                <img src="{{ url_for('static', filename='images/' +juego.img) }}" />
+                <figcaption>{{ juego.juego }}</figcaption>
+            </figure>
         {% endfor %}
-    </div>
-</div>
+	</div>
 {% endblock content %}
 
 {% block script %}

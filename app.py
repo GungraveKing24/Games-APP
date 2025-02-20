@@ -7,13 +7,14 @@ from PIL import Image
 from moviepy.video.io.VideoFileClip import VideoFileClip
 from datetime import date
 from thumbnails import get_thumbnail
+from Database import db, init_db, games, Artist, artist_data
 import os, requests, uuid
 
 app = Flask(__name__)
 app.secret_key = '25as52x24da29s8'
+init_db(app)
 
 # Ruta de la base de datos SQLite
-DATABASE_PATH = os.path.join(os.path.dirname(__file__), 'static/database/Juegos_datos.db')
 UPLOAD_FOLDER = os.path.join(os.path.dirname(__file__), 'static', 'images')
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
@@ -23,28 +24,13 @@ BASE_DIR_VIDEOS = os.path.abspath("D:\\videos\\varios")
 THUMBNAIL_PATH = "static/thumbnails"
 VIDEOS_THUMBNAIL_PATH = "static/thumbnails/videos_thumbnails"
 
-app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{DATABASE_PATH}'
 app.config['MAX_CONTENT_LENGTH'] = 512 * 1024 * 1024  # 10MB
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.wsgi_app = WhiteNoise(app.wsgi_app, root=BASE_DIR, prefix="media/")
 
-db = SQLAlchemy(app)
 os.makedirs(THUMBNAIL_PATH, exist_ok=True)
 os.makedirs(VIDEOS_THUMBNAIL_PATH, exist_ok=True)
-
-# Definir la clase `games`
-class games(db.Model):
-    # Definir las columnas de la tabla
-    id = db.Column(db.Integer, primary_key=True)
-    juego = db.Column(db.String(255), nullable=False)
-    estado = db.Column(db.String(255), nullable=False)
-    runN = db.Column(db.Integer, nullable=False)
-    rejugando = db.Column(db.String(255), nullable=False)
-    DatosAdicionales = db.Column(db.String(255), nullable=False)
-    Calificacion = db.Column(db.Float, nullable=False)
-    img = db.Column(db.String(255), nullable=True)
-    fecha_finalizado = db.Column(db.Date, nullable=True)
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -52,8 +38,13 @@ def allowed_file(filename):
 # Ruta de ejemplo para mostrar los juegos
 @app.route('/')
 def index():
-    juegos = games.query.all()
-    return render_template('index.html', juegos=juegos)
+    juegos = games.query.filter(games.juego != None).all()
+
+    return render_template('index.html', juegos=juegos, count = len(juegos))
+
+@app.route('/artists')
+def artists():
+    return render_template('artists.html')
 
 @app.route('/search', methods=['GET'])
 def search():

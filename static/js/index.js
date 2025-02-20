@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const cards = document.querySelectorAll('.js-steamCardWrapper'); // Seleccionar las tarjetas
+    const cards = document.querySelectorAll('.card'); // Seleccionar las tarjetas
 
     const currentyslide = localStorage.getItem('currentyslide');
     if (currentyslide) {
