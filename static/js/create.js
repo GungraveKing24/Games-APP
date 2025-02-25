@@ -158,7 +158,7 @@ document.getElementById('gameForm').addEventListener('submit', async function (e
         if (response.ok) {
             alert('Juego creado correctamente.');
         } else {
-            alert('Error al crear el juego.');
+            alert('Error al crear el juego.', response.statusText);
         }
     } catch (error) {
         console.error('Error al crear el juego:', error);

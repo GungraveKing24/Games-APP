@@ -73,11 +73,19 @@ def create():
         imgurl = request.form.get('imgurl')
         imgfile = request.files.get('imgfile')
         
-        runN = '' if runN == '' else int(runN)
-        DatosAdicionales = '' if DatosAdicionales == '' else str(DatosAdicionales)
-        Calificacion = '' if Calificacion == '' else float(Calificacion)
-        fecha_finalizado = '' if fecha_finalizado == '' else date.fromisoformat(fecha_finalizado)
-        
+        runN = int(runN) if runN.isdigit() else 0
+        DatosAdicionales = None if not DatosAdicionales else str(DatosAdicionales)
+        Calificacion = 0 if Calificacion == '' else float(Calificacion)
+        fecha_finalizado = date.fromisoformat(fecha_finalizado) if fecha_finalizado else None
+
+        print("Juego:", juego)
+        print("Estado:", estado)
+        print("Veces jugado:", runN)
+        print("Rejugando:", rejugando)
+        print("Datos Adicionales:", DatosAdicionales)
+        print("Calificacion:", Calificacion)
+        print("Fecha Finalizado:", fecha_finalizado)
+
         # Manejar la imagen
         imgurl = request.form.get('imgurl')
         imgfile = request.files.get('imgfile')
