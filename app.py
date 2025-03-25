@@ -8,7 +8,9 @@ from moviepy.video.io.VideoFileClip import VideoFileClip
 from datetime import date
 from thumbnails import get_thumbnail
 from Database import db, init_db, games, Artist, artist_data
-import os, requests, uuid
+from flaskwebgui import FlaskUI, close_application
+
+import os, requests, uuid, hashlib
 
 app = Flask(__name__)
 app.secret_key = '25as52x24da29s8'
@@ -41,10 +43,6 @@ def index():
     juegos = games.query.filter(games.juego != None).all()
 
     return render_template('index.html', juegos=juegos, count = len(juegos))
-
-@app.route('/artists')
-def artists():
-    return render_template('artists.html')
 
 @app.route('/search', methods=['GET'])
 def search():
@@ -444,5 +442,7 @@ def upload_video(folder_name):
     except Exception as e:
         return jsonify({"error": f"Error al subir el video: {str(e)}"}), 500
 
+
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0')
+    app.run(host='0.0.0.0', port=5050, debug=True)
+    #FlaskUI(app=app, server="flask", width=1920, height=1080).run()

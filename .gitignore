@@ -7,7 +7,9 @@ __pycache__/
 .static/thumbnails/
 
 # Ignorar la carpeta de videos_thumbnails dentro de thumbnails
-.static/thumbnails/videos_thumbnails/
+.static/thumbnails/videos_thumbnails
+static/thumbnails/*
+/static/thumbnails/
 
 # C extensions
 *.so
