@@ -2,8 +2,8 @@
 module.exports = {
   darkMode: 'class',
   content: [
-    "./templates/**/*.html",  // Asegúrate de incluir tus archivos .html
-    "./static/js/**/*.js",    // Si tienes archivos JS en la carpeta static
+    "./templates/**/*.html",
+    "./static/js/**/*.js",
   ],
   theme: {
     extend: {},
